@@ -3,6 +3,9 @@ CREATE TABLE Department (
     name VARCHAR(100) NOT NULL
 );
 
+
+
+
 CREATE TABLE Nurse (
     nurse_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
