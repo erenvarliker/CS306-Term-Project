@@ -26,7 +26,7 @@ CREATE TABLE Patient (
 
 CREATE TABLE Rooms (
     room_id INT PRIMARY KEY
-    status INT,
+    room_status INT,
     );
 
 CREATE TABLE Stays_In (
