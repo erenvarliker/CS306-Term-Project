@@ -77,16 +77,16 @@ CREATE TABLE Includes (
     FOREIGN KEY (drug_id) REFERENCES Drugs(drug_id)
 );
 
+CREATE TABLE Lab (
+    lab_id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE Test (
     test_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     lab_id INT,
     FOREIGN KEY (lab_id) REFERENCES Lab(lab_id)
-);
-
-CREATE TABLE Lab (
-    lab_id INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Conducts (
