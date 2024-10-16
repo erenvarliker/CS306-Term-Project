@@ -80,7 +80,7 @@ CREATE TABLE Includes (
 CREATE TABLE Test (
     test_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    lab_id INT,
+    lab_id INT,
     FOREIGN KEY (lab_id) REFERENCES Lab(lab_id)
 );
 
@@ -254,4 +254,75 @@ INSERT INTO Includes (prescription_id, drug_id) VALUES
 (9, 9),
 (10, 10);
 
+INSERT INTO Lab (lab_id, name) VALUES
+(101, 'Pathology Lab'),
+(102, 'Radiology Lab'),
+(103, 'MRI Lab'),
+(104, 'Biochemistry Lab'),
+(105, 'CT Scan Lab'),
+(106, 'Cardiology Lab'),
+(107, 'Microbiology Lab'),
+(108, 'Hematology Lab'),
+(109, 'Allergy Testing Lab'),
+(110, 'Virology Lab');
 
+
+INSERT INTO Test (test_id, name, lab_id) VALUES
+(1, 'Blood Test', 101),
+(2, 'X-Ray', 102),
+(3, 'MRI Scan', 103),
+(4, 'Urine Test', 104),
+(5, 'CT Scan', 105),
+(6, 'ECG', 106),
+(7, 'Liver Function Test', 107),
+(8, 'Cholesterol Test', 108),
+(9, 'Allergy Test', 109),
+(10, 'COVID-19 Test', 110);
+
+INSERT INTO Conducts (lab_id, test_id) VALUES
+(101, 1),
+(102, 2),
+(103, 3),
+(104, 4),
+(105, 5),
+(106, 6),
+(107, 7),
+(108, 8),
+(109, 9),
+(110, 10);
+
+INSERT INTO Undergoes (undergo_id, patient_id, test_id) VALUES
+(1, 92, 1),
+(2, 113, 2),
+(3, 123, 3),
+(4, 127, 4),
+(5, 203, 5),
+(6, 222, 6),
+(7, 450, 7),
+(8, 467, 8),
+(9, 601, 9),
+(10,698, 10);
+
+INSERT INTO Equipment (equipment_id, name) VALUES
+(1, 'X-Ray Machine'),
+(2, 'MRI Scanner'),
+(3, 'CT Scanner'),
+(4, 'Ultrasound Machine'),
+(5, 'ECG Machine'),
+(6, 'Defibrillator'),
+(7, 'Ventilator'),
+(8, 'Anesthesia Machine'),
+(9, 'Surgical Table'),
+(10, 'Infusion Pump');
+
+INSERT INTO Has (department_id, equipment_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8),
+(9, 9),
+(10, 10);
