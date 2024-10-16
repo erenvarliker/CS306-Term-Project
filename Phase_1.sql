@@ -80,7 +80,8 @@ CREATE TABLE Includes (
 CREATE TABLE Test (
     test_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    lab_id INT
+    lab_id INT,
+    FOREIGN KEY (lab_id) REFERENCES Lab(lab_id)
 );
 
 CREATE TABLE Lab (
