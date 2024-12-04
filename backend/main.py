@@ -5,6 +5,12 @@ from models import Base, Patient
 import crud
 import logging
 
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+from sqlalchemy import text
+templates = Jinja2Templates(directory="templates")
+
 # Initialize FastAPI
 app = FastAPI()
 
@@ -53,3 +59,75 @@ def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
     return bill
+
+
+@app.get("/update_page", response_class=HTMLResponse)
+def get_update_page():
+    html_content = """
+    <html>
+        <head>
+            <title>Update Number of Doctors</title>
+        </head>
+        <body>
+            <h1>Update Number of Doctors</h1>
+            <form action="/update" method="post">
+                <button type="submit">Update num_doctors</button>
+            </form>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+# POST endpoint to handle the button click, update num_doctors, and display results
+@app.post("/update", response_class=HTMLResponse)
+def update_num_doctors(db: Session = Depends(get_db)):
+    try:
+        # Call the stored procedure to update num_doctors
+        db.execute(text("CALL UpdateNumDoctors()"))
+        db.commit()
+
+        # Fetch the updated department data
+        departments = db.execute(text("SELECT department_id, name, num_doctors FROM Department")).fetchall()
+
+        # Build an HTML table to display the updated data
+        table_rows = ""
+        for dept in departments:
+            table_rows += f"""
+            <tr>
+                <td>{dept.department_id}</td>
+                <td>{dept.name}</td>
+                <td>{dept.num_doctors}</td>
+            </tr>
+            """
+
+        html_content = f"""
+        <html>
+            <head>
+                <title>Updated Number of Doctors</title>
+            </head>
+            <body>
+                <h1>Updated Number of Doctors</h1>
+                <table border="1">
+                    <tr>
+                        <th>Department ID</th>
+                        <th>Department Name</th>
+                        <th>Number of Doctors</th>
+                    </tr>
+                    {table_rows}
+                </table>
+            </body>
+        </html>
+        """
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        html_content = f"""
+        <html>
+            <head>
+                <title>Error</title>
+            </head>
+            <body>
+                <h1>Error updating num_doctors: {e}</h1>
+            </body>
+        </html>
+        """
+        return HTMLResponse(content=html_content)
