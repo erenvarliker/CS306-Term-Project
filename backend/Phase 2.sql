@@ -1,3 +1,5 @@
+ALTER TABLE Drugs ADD COLUMN availability VARCHAR(50) DEFAULT 'Available';
+
 DELIMITER $$
 CREATE TRIGGER UpdateDrugAvailability
 AFTER INSERT ON Includes
@@ -11,7 +13,7 @@ END$$
 DELIMITER ;
 
 
-ALTER TABLE Drugs ADD COLUMN availability VARCHAR(50) DEFAULT 'Available';
+
 
 DELIMITER $$
 CREATE PROCEDURE CalculatePatientDrugCost(IN patientID INT, OUT totalCost DECIMAL(10, 2))
@@ -28,3 +30,27 @@ DELIMITER ;
 
 CALL CalculatePatientDrugCost(92, @totalCost);
 SELECT @totalCost; -- View the total cost result
+
+DELIMITER $$
+CREATE TRIGGER Auto_Update_Room_Availability
+AFTER UPDATE ON Stays_In
+FOR EACH ROW
+BEGIN
+    IF NEW.end_date = CURRENT_DATE THEN
+        UPDATE Rooms
+        SET room_status = 0
+        WHERE room_id = NEW.room_id;
+    END IF;
+END$$
+
+
+DELIMITER $$
+
+CREATE PROCEDURE GetRoomAvailability()
+BEGIN
+    SELECT room_id, room_status
+    FROM Rooms
+    WHERE room_status = 0;
+END$$
+
+DELIMITER ;

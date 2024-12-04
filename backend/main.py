@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from models import Base, Patient
@@ -11,6 +12,13 @@ app = FastAPI()
 
 
 # Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 def get_db():
     db = SessionLocal()
     try:
@@ -151,3 +159,38 @@ def read_labs(db: Session = Depends(get_db)):
 def read_prescriptions(db: Session = Depends(get_db)):
     prescriptions = crud.get_prescriptions(db)
     return generate_html_table(prescriptions, "Prescriptions")
+
+
+@app.get("/rooms/availability", response_class=HTMLResponse)
+def read_room_availability(db: Session = Depends(get_db)):
+    try:
+        # Execute the stored procedure
+        result = db.execute(text("CALL GetRoomAvailability()"))
+        rows = result.fetchall()  # Fetch all rows returned by the procedure
+
+        # Convert rows to HTML table
+        table_html = """
+        <html>
+            <head>
+                <title>Room Availability</title>
+            </head>
+            <body>
+                <h1>Available Rooms</h1>
+                <table border="1">
+                    <tr>
+                        <th>Room ID</th>
+                        <th>Room Status</th>
+                    </tr>
+        """
+        for row in rows:
+            table_html += f"<tr><td>{row.room_id}</td><td>{row.room_status}</td></tr>"
+
+        table_html += """
+                </table>
+            </body>
+        </html>
+        """
+
+        return HTMLResponse(content=table_html)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching room availability: {e}")
