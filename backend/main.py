@@ -18,16 +18,59 @@ def get_db():
     finally:
         db.close()
 
+
+
+#Utility Function
+def generate_html_table(data, title):
+    if not data:
+        return f"""
+        <html>
+            <head><title>{title}</title></head>
+            <body>
+                <h1>{title}</h1>
+                <p>No data available.</p>
+            </body>
+        </html>
+        """
+    # Check if data contains ORM objects or dictionaries
+    if hasattr(data[0], '__dict__'):
+        keys = [key for key in data[0].__dict__.keys() if key != "_sa_instance_state"]
+        table_headers = "".join(f"<th>{key}</th>" for key in keys)
+        table_rows = "".join(
+            f"<tr>{''.join(f'<td>{getattr(row, key)}</td>' for key in keys)}</tr>"
+            for row in data
+        )
+    else:  # If data contains dictionaries
+        keys = data[0].keys()
+        table_headers = "".join(f"<th>{key}</th>" for key in keys)
+        table_rows = "".join(
+            f"<tr>{''.join(f'<td>{row[key]}</td>' for key in keys)}</tr>"
+            for row in data
+        )
+    return f"""
+    <html>
+        <head><title>{title}</title></head>
+        <body>
+            <h1>{title}</h1>
+            <table border="1">
+                <thead><tr>{table_headers}</tr></thead>
+                <tbody>{table_rows}</tbody>
+            </table>
+        </body>
+    </html>
+    """
+
+
 # Endpoints
 logging.basicConfig(level=logging.INFO)
 
-@app.get("/patients")
+@app.get("/patients", response_class=HTMLResponse)
 def read_patients(db: Session = Depends(get_db)):
     try:
         logging.info("Fetching patients from the database...")
         patients = db.query(Patient).all()
         logging.info(f"Fetched {len(patients)} patients.")
-        return patients
+        return generate_html_table(patients, "Patients")
     except Exception as e:
         logging.error(f"Error fetching patients: {e}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
@@ -57,43 +100,54 @@ def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     return bill
 
 
-@app.get("/departments")
+
+@app.get("/departments", response_class=HTMLResponse)
 def read_departments(db: Session = Depends(get_db)):
-    return crud.get_departments(db)
+    departments = crud.get_departments(db)
+    return generate_html_table(departments, "Departments")
 
 
-@app.get("/doctors")
+@app.get("/doctors", response_class=HTMLResponse)
 def read_doctors(db: Session = Depends(get_db)):
-    return crud.get_doctors(db)
+    doctors = crud.get_doctors(db)
+    return generate_html_table(doctors, "Doctors")
 
-@app.get("/nurses")
+@app.get("/nurses", response_class=HTMLResponse)
 def read_nurses(db: Session = Depends(get_db)):
-    return crud.get_nurses(db)
+    nurses = crud.get_nurses(db)
+    return generate_html_table(nurses, "Nurses")
 
-@app.get("/drugs")
+@app.get("/drugs", response_class=HTMLResponse)
 def read_drugs(db: Session = Depends(get_db)):
-    return crud.get_drugs(db)
+    drugs = crud.get_drugs(db)
+    return generate_html_table(drugs, "Drugs")
 
-@app.get("/equipment")
+@app.get("/equipment", response_class=HTMLResponse)
 def read_equipment(db: Session = Depends(get_db)):
-    return crud.get_equipment(db)
+    equipments = crud.get_equipment(db)
+    return generate_html_table(equipments, "Equipments")
 
-@app.get("/bills")
+@app.get("/bills", response_class=HTMLResponse)
 def read_bills(db: Session = Depends(get_db)):
-    return crud.get_bills(db)
+    bills = crud.get_bills(db)
+    return generate_html_table(bills, "Bills")
 
-@app.get("/rooms")
+@app.get("/rooms", response_class=HTMLResponse)
 def read_rooms(db: Session = Depends(get_db)):
-    return crud.get_rooms(db)
+    rooms = crud.get_rooms(db)
+    return generate_html_table(rooms, "Rooms")
 
-@app.get("/stays_in")
+@app.get("/stays_in", response_class=HTMLResponse)
 def read_stays_in(db: Session = Depends(get_db)):
-    return crud.get_stays(db)
+    staysIn = crud.get_stays(db)
+    return generate_html_table(staysIn, "Stays In")
 
-@app.get("/labs")
+@app.get("/labs", response_class=HTMLResponse)
 def read_labs(db: Session = Depends(get_db)):
-    return crud.get_labs(db)
+    labs = crud.get_labs(db)
+    return generate_html_table(labs, "Labs")
 
-@app.get("/prescriptions")
+@app.get("/prescriptions", response_class=HTMLResponse)
 def read_prescriptions(db: Session = Depends(get_db)):
-    return crud.get_prescriptions(db)
+    prescriptions = crud.get_prescriptions(db)
+    return generate_html_table(prescriptions, "Prescriptions")
