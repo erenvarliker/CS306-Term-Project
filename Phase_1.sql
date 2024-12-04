@@ -326,3 +326,32 @@ INSERT INTO Has (department_id, equipment_id) VALUES
 (8, 8),
 (9, 9),
 (10, 10);
+
+--hakan
+DELIMITER $$
+
+CREATE TRIGGER sys.Auto_Update_Room_Availability
+AFTER UPDATE ON sys.Stays_In
+FOR EACH ROW
+BEGIN
+    IF NEW.end_date = CURRENT_DATE THEN
+        UPDATE sys.Rooms
+        SET room_status = 0
+        WHERE room_id = NEW.room_id;
+    END IF;
+END$$
+
+
+DELIMITER $$
+
+CREATE PROCEDURE GetRoomAvailability()
+BEGIN
+    SELECT room_id, room_status
+    FROM Rooms
+    WHERE room_status = 0;
+END$$
+
+
+
+CALL GetRoomAvailability();
+--hakan
