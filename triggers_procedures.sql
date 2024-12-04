@@ -16,7 +16,6 @@ DELIMITER $$
 
 CREATE PROCEDURE UpdateNumDoctors()
 BEGIN
-    -- Update the num_doctors column for each department
     UPDATE Department d
     SET num_doctors = (
         SELECT COUNT(*)
@@ -24,7 +23,6 @@ BEGIN
         WHERE doc.department_id = d.department_id
     );
 
-    -- Display the updated num_doctors for each department
     SELECT department_id, name AS DepartmentName, num_doctors
     FROM Department;
 END$$
