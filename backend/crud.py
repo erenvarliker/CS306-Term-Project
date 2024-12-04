@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from models import Patient, Appointment
+from sqlalchemy.sql import text  # Import the text function for raw SQL
 
 # Patients
 def get_patients(db: Session):
@@ -23,3 +24,15 @@ def create_appointment(db: Session, doctor_id: int, patient_id: int, appointment
     db.refresh(appointment)
     return appointment
 
+# Bills (Placeholder if it's used)
+def get_bill_by_appointment_id(db: Session, appointment_id: int):
+    query = "SELECT * FROM Bill WHERE appointment_id = :appointment_id"
+    result = db.execute(query, {"appointment_id": appointment_id}).fetchone()
+    return dict(result) if result else None
+
+# Room Availability (Using Stored Procedure)
+def get_room_availability(db: Session):
+    query = text("CALL GetRoomAvailability()")
+    result = db.execute(query)
+    
+    return [{"room_id": row[0], "room_status": row[1]} for row in result]

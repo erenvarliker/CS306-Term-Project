@@ -11,10 +11,6 @@ class Patient(Base):
     age = Column(Integer, nullable=True)
     gender = Column(String(10), nullable=True)
 
-    # Remove any unnecessary relationships if you don't need them
-
-
-
 class Appointment(Base):
     __tablename__ = "Appointment"
 
@@ -23,5 +19,11 @@ class Appointment(Base):
     patient_id = Column(Integer, ForeignKey("Patient.patient_id"))
     appointment_date = Column(String, nullable=True)
 
-    # Ensure no invalid relationships here
+# Add Bill Model for bills (if needed in APIs)
+class Bill(Base):
+    __tablename__ = "Bill"
 
+    bill_id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("Appointment.appointment_id"))
+    amount = Column(Integer, nullable=True)
+    status = Column(String(50), nullable=True)
