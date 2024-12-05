@@ -10,6 +10,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from models import Room
 from models import StaysIn
+from models import Doctor
+
 # Initialize FastAPI
 app = FastAPI()
 
@@ -128,6 +130,78 @@ def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
     return bill
+
+
+@app.get("/update_page", response_class=HTMLResponse)
+def get_update_page():
+    html_content = """
+    <html>
+        <head>
+            <title>Update Number of Doctors</title>
+        </head>
+        <body>
+            <h1>Update Number of Doctors</h1>
+            <form action="/update" method="post">
+                <button type="submit">Update num_doctors</button>
+            </form>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+# POST endpoint to handle the button click, update num_doctors, and display results
+@app.post("/update", response_class=HTMLResponse)
+def update_num_doctors(db: Session = Depends(get_db)):
+    try:
+        # Call the stored procedure to update num_doctors
+        db.execute(text("CALL UpdateNumDoctors()"))
+        db.commit()
+
+        # Fetch the updated department data
+        departments = db.execute(text("SELECT department_id, name, num_doctors FROM Department")).fetchall()
+
+        # Build an HTML table to display the updated data
+        table_rows = ""
+        for dept in departments:
+            table_rows += f"""
+            <tr>
+                <td>{dept.department_id}</td>
+                <td>{dept.name}</td>
+                <td>{dept.num_doctors}</td>
+            </tr>
+            """
+
+        html_content = f"""
+        <html>
+            <head>
+                <title>Updated Number of Doctors</title>
+            </head>
+            <body>
+                <h1>Updated Number of Doctors</h1>
+                <table border="1">
+                    <tr>
+                        <th>Department ID</th>
+                        <th>Department Name</th>
+                        <th>Number of Doctors</th>
+                    </tr>
+                    {table_rows}
+                </table>
+            </body>
+        </html>
+        """
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        html_content = f"""
+        <html>
+            <head>
+                <title>Error</title>
+            </head>
+            <body>
+                <h1>Error updating num_doctors: {e}</h1>
+            </body>
+        </html>
+        """
+        return HTMLResponse(content=html_content)
 
 
 @app.get("/departments", response_class=HTMLResponse)
@@ -332,3 +406,34 @@ def update_stays_in(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error updating stay: {str(e)}")
+    
+@app.post("/doctors")
+def create_doctor(doctor_id: int, name: str, department_id: int, db: Session = Depends(get_db)):
+    """
+    Create a new doctor.
+    """
+    try:
+        new_doctor = Doctor(doctor_id=doctor_id, name=name, department_id=department_id)
+        db.add(new_doctor)
+        db.commit()
+        db.refresh(new_doctor)
+        return new_doctor
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error adding doctor: {str(e)}")
+
+@app.post("/doctors/delete")
+def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
+    """
+    Remove a doctor by doctor_id.
+    """
+    try:
+        doctor = db.query(Doctor).filter(Doctor.doctor_id == doctor_id).first()
+        if not doctor:
+            raise HTTPException(status_code=404, detail=f"Doctor with ID {doctor_id} not found.")
+        db.delete(doctor)
+        db.commit()
+        return {"message": f"Doctor with ID {doctor_id} has been removed successfully."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error removing doctor: {str(e)}")

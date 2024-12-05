@@ -77,6 +77,91 @@
         <button onclick="navigateTo('/stays_in')">Stays In</button>
         <button onclick="navigateTo('/labs')">Labs</button>
         <button onclick="navigateTo('/prescriptions')">Prescriptions</button>
+        <button onclick="navigateTo('/update_page')">Update Page</button>
+    </div>
+
+    <!-- Add Patient Form -->
+    <div class="form-container">
+        <h2>Add a New Patient</h2>
+        <form id="patientForm">
+            <label for="patient_id">Patient ID:</label>
+            <input type="number" id="patient_id" name="patient_id" required />
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="gender">Gender:</label>
+            <input type="text" id="gender" name="gender" required />
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required />
+
+            <button type="submit">Add Patient</button>
+        </form>
+    </div>
+
+    <!-- Add Room Form -->
+    <div class="form-container">
+        <h2>Add a New Room</h2>
+        <form id="roomForm">
+            <label for="room_id">Room ID:</label>
+            <input type="number" id="room_id" name="room_id" required />
+
+            <label for="room_status">Room Status (0 = Available, 1 = Occupied):</label>
+            <input type="number" id="room_status" name="room_status" required />
+
+            <button type="submit">Add Room</button>
+        </form>
+    </div>
+
+    <!-- Add Doctor Form -->
+    <div class="form-container">
+        <h2>Add a New Doctor</h2>
+        <form id="doctorForm">
+            <label for="doctor_id">Doctor ID:</label>
+            <input type="number" id="doctor_id" name="doctor_id" required />
+
+            <label for="doctor_name">Name:</label>
+            <input type="text" id="doctor_name" name="doctor_name" required />
+
+            <label for="department_id">Department ID:</label>
+            <input type="number" id="department_id" name="department_id" required />
+
+            <button type="submit">Add Doctor</button>
+        </form>
+    </div>
+
+    <!-- Remove Doctor Form -->
+    <div class="form-container">
+        <h2>Remove a Doctor</h2>
+        <form id="doctorRemoveForm">
+            <label for="remove_doctor_id">Doctor ID:</label>
+            <input type="number" id="remove_doctor_id" name="remove_doctor_id" required />
+            <button type="submit">Remove Doctor</button>
+        </form>
+    </div>
+
+    <!-- Add Stays In Form -->
+    <div class="form-container">
+        <h2>Add to Stays In</h2>
+        <form id="staysInForm">
+            <label for="stay_id">Stay ID:</label>
+            <input type="number" id="stay_id" name="stay_id" required />
+
+            <label for="patient_id_stays">Patient ID:</label>
+            <input type="number" id="patient_id_stays" name="patient_id_stays" required />
+
+            <label for="room_id_stays">Room ID:</label>
+            <input type="number" id="room_id_stays" name="room_id_stays" required />
+
+            <label for="start_date">Start Date (YYYY-MM-DD):</label>
+            <input type="text" id="start_date" name="start_date" required />
+
+            <label for="end_date">End Date (YYYY-MM-DD):</label>
+            <input type="text" id="end_date" name="end_date" />
+
+            <button type="submit">Add Stay</button>
+        </form>
     </div>
 
     <!-- Add Patient Form -->
@@ -137,19 +222,14 @@
     </div>
 
     <script>
-        /**
-         * Navigates to the given endpoint.
-         * @param {string} endpoint - The API endpoint to navigate to.
-         */
         function navigateTo(endpoint) {
             const baseUrl = "http://127.0.0.1:8000"; // Base URL of the FastAPI backend
             window.location.href = baseUrl + endpoint;
         }
 
-        // Function to add a new patient
+        // Add Patient
         document.getElementById("patientForm").addEventListener("submit", async function (event) {
             event.preventDefault();
-
             const patient_id = parseInt(document.getElementById("patient_id").value);
             const name = document.getElementById("name").value.trim();
             const gender = document.getElementById("gender").value.trim();
@@ -166,7 +246,6 @@
                 const response = await fetch(`http://127.0.0.1:8000/patients?${queryParams.toString()}`, {
                     method: "POST",
                 });
-
                 if (response.ok) {
                     const result = await response.json();
                     alert(`Patient added successfully! Patient ID: ${result.patient_id}`);
@@ -180,10 +259,9 @@
             }
         });
 
-        // Function to add a new room
+        // Add Room
         document.getElementById("roomForm").addEventListener("submit", async function (event) {
             event.preventDefault();
-
             const room_id = parseInt(document.getElementById("room_id").value);
             const room_status = parseInt(document.getElementById("room_status").value);
 
@@ -196,7 +274,6 @@
                 const response = await fetch(`http://127.0.0.1:8000/rooms?${queryParams.toString()}`, {
                     method: "POST",
                 });
-
                 if (response.ok) {
                     const result = await response.json();
                     alert(`Room added successfully! Room ID: ${result.room_id}`);
@@ -210,10 +287,65 @@
             }
         });
 
-        // Function to add to Stays In
+        // Add Doctor
+        document.getElementById("doctorForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const doctor_id = parseInt(document.getElementById("doctor_id").value);
+            const doctor_name = document.getElementById("doctor_name").value.trim();
+            const department_id = parseInt(document.getElementById("department_id").value);
+
+            const queryParams = new URLSearchParams({
+                doctor_id: doctor_id,
+                name: doctor_name,
+                department_id: department_id
+            });
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/doctors?${queryParams.toString()}`, {
+                    method: "POST",
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`Doctor added successfully! Doctor ID: ${result.doctor_id}`);
+                    document.getElementById("doctorForm").reset();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${JSON.stringify(error.detail)}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        // Remove Doctor
+        document.getElementById("doctorRemoveForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const remove_doctor_id = parseInt(document.getElementById("remove_doctor_id").value);
+
+            const queryParams = new URLSearchParams({
+                doctor_id: remove_doctor_id
+            });
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/doctors/delete?${queryParams.toString()}`, {
+                    method: "POST",
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                    document.getElementById("doctorRemoveForm").reset();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${JSON.stringify(error.detail)}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        // Add Stay (Stays_In)
         document.getElementById("staysInForm").addEventListener("submit", async function (event) {
             event.preventDefault();
-
             const stay_id = parseInt(document.getElementById("stay_id").value);
             const patient_id = parseInt(document.getElementById("patient_id_stays").value);
             const room_id = parseInt(document.getElementById("room_id_stays").value);
@@ -232,7 +364,6 @@
                 const response = await fetch(`http://127.0.0.1:8000/stays_in?${queryParams.toString()}`, {
                     method: "POST",
                 });
-
                 if (response.ok) {
                     const result = await response.json();
                     alert(`Stay added successfully! Stay ID: ${result.stay_id}`);
