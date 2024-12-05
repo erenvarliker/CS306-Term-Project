@@ -21,8 +21,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-
-
 # Dependency to get DB session
 def get_db():
     db = SessionLocal()
@@ -79,9 +77,14 @@ def generate_html_table(data, title):
     </html>
     """
 
-
 # Endpoints
 logging.basicConfig(level=logging.INFO)
+
+@app.get("/", response_class=HTMLResponse)
+def read_homepage():
+    with open("../frontend/index.html", "r") as file:
+        content = file.read()
+    return HTMLResponse(content=content)
 
 @app.get("/patients", response_class=HTMLResponse)
 def read_patients(db: Session = Depends(get_db)):
@@ -118,12 +121,6 @@ def read_appointments(db: Session = Depends(get_db)):
     appointments = crud.get_appointments(db)
     return generate_html_table(appointments,"Appointments")
 
-@app.post("/appointments")
-def create_appointment(doctor_id: int, patient_id: int, appointment_date: str, db: Session = Depends(get_db)):
-    appointment = crud.create_appointment(db, doctor_id, patient_id, appointment_date)
-    crud.create_bill(db, appointment_id=appointment.appointment_id)
-    return appointment
-
 @app.get("/bills/{appointment_id}")
 def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     bill = crud.get_bill_by_appointment_id(db, appointment_id)
@@ -132,12 +129,10 @@ def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     return bill
 
 
-
 @app.get("/departments", response_class=HTMLResponse)
 def read_departments(db: Session = Depends(get_db)):
     departments = crud.get_departments(db)
     return generate_html_table(departments, "Departments")
-
 
 @app.get("/doctors", response_class=HTMLResponse)
 def read_doctors(db: Session = Depends(get_db)):
@@ -183,7 +178,6 @@ def read_labs(db: Session = Depends(get_db)):
 def read_prescriptions(db: Session = Depends(get_db)):
     prescriptions = crud.get_prescriptions(db)
     return generate_html_table(prescriptions, "Prescriptions")
-
 
 @app.get("/rooms/availability", response_class=HTMLResponse)
 def read_room_availability(db: Session = Depends(get_db)):
@@ -243,7 +237,6 @@ def create_stay(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
-
 
 @app.put("/stays_in/{stay_id}")
 def update_stay(
