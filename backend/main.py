@@ -6,10 +6,20 @@ from models import Base, Patient
 import crud
 import logging
 from fastapi.responses import HTMLResponse
-
+from fastapi.middleware.cors import CORSMiddleware
+from models import Room
+from models import StaysIn
 # Initialize FastAPI
 app = FastAPI()
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins, change to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Dependency to get DB session
 def get_db():
@@ -26,8 +36,7 @@ def get_db():
     finally:
         db.close()
 
-
-
+        
 #Utility Function
 def generate_html_table(data, title):
     if not data:
@@ -68,9 +77,14 @@ def generate_html_table(data, title):
     </html>
     """
 
-
 # Endpoints
 logging.basicConfig(level=logging.INFO)
+
+@app.get("/", response_class=HTMLResponse)
+def read_homepage():
+    with open("../frontend/index.html", "r") as file:
+        content = file.read()
+    return HTMLResponse(content=content)
 
 @app.get("/patients", response_class=HTMLResponse)
 def read_patients(db: Session = Depends(get_db)):
@@ -84,21 +98,28 @@ def read_patients(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
 
+@app.post("/rooms")
+def create_room(room_id: int, room_status: int, db: Session = Depends(get_db)):
+    try:
+        new_room = Room(room_id=room_id, room_status=room_status)
+        db.add(new_room)
+        db.commit()
+        db.refresh(new_room)
+        return new_room
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error adding room: {str(e)}")
+
 
 @app.post("/patients")
-def create_patient(name: str, gender: str, age: int, db: Session = Depends(get_db)):
-    return crud.create_patient(db, name, gender, age)
+def create_patient(patient_id: int, name: str, gender: str, age: int, db: Session = Depends(get_db)):
+    return crud.create_patient(db, patient_id, name, gender, age)
+
 
 @app.get("/appointments",response_class=HTMLResponse)
 def read_appointments(db: Session = Depends(get_db)):
     appointments = crud.get_appointments(db)
     return generate_html_table(appointments,"Appointments")
-
-@app.post("/appointments")
-def create_appointment(doctor_id: int, patient_id: int, appointment_date: str, db: Session = Depends(get_db)):
-    appointment = crud.create_appointment(db, doctor_id, patient_id, appointment_date)
-    crud.create_bill(db, appointment_id=appointment.appointment_id)
-    return appointment
 
 @app.get("/bills/{appointment_id}")
 def read_bill(appointment_id: int, db: Session = Depends(get_db)):
@@ -108,12 +129,10 @@ def read_bill(appointment_id: int, db: Session = Depends(get_db)):
     return bill
 
 
-
 @app.get("/departments", response_class=HTMLResponse)
 def read_departments(db: Session = Depends(get_db)):
     departments = crud.get_departments(db)
     return generate_html_table(departments, "Departments")
-
 
 @app.get("/doctors", response_class=HTMLResponse)
 def read_doctors(db: Session = Depends(get_db)):
@@ -160,7 +179,6 @@ def read_prescriptions(db: Session = Depends(get_db)):
     prescriptions = crud.get_prescriptions(db)
     return generate_html_table(prescriptions, "Prescriptions")
 
-
 @app.get("/rooms/availability", response_class=HTMLResponse)
 def read_room_availability(db: Session = Depends(get_db)):
     try:
@@ -194,3 +212,117 @@ def read_room_availability(db: Session = Depends(get_db)):
         return HTMLResponse(content=table_html)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching room availability: {e}")
+    
+@app.post("/stays_in")
+def create_stay(
+    stay_id: int,
+    patient_id: int,
+    room_id: int,
+    start_date: str,
+    end_date: str = None,
+    db: Session = Depends(get_db)
+):
+    try:
+        new_stay = StaysIn(
+            stay_id=stay_id,
+            patient_id=patient_id,
+            room_id=room_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        db.add(new_stay)
+        db.commit()
+        db.refresh(new_stay)
+        return new_stay
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/stays_in/{stay_id}")
+def update_stay(
+    stay_id: int,
+    patient_id: int = None,
+    room_id: int = None,
+    start_date: str = None,
+    end_date: str = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Updates an existing entry in the Stays_In table.
+    
+    Args:
+        stay_id (int): The ID of the stay to update.
+        patient_id (int, optional): Updated patient ID.
+        room_id (int, optional): Updated room ID.
+        start_date (str, optional): Updated start date in YYYY-MM-DD format.
+        end_date (str, optional): Updated end date in YYYY-MM-DD format.
+        db (Session): The database session (autoinjected).
+        
+    Returns:
+        Updated stay entry or an error message if the stay does not exist.
+    """
+    try:
+        # Fetch the existing stay entry by stay_id
+        stay = db.query(StaysIn).filter(StaysIn.stay_id == stay_id).first()
+        if not stay:
+            raise HTTPException(status_code=404, detail=f"Stay with ID {stay_id} not found.")
+
+        # Update the fields if new values are provided
+        if patient_id is not None:
+            stay.patient_id = patient_id
+        if room_id is not None:
+            stay.room_id = room_id
+        if start_date is not None:
+            stay.start_date = start_date
+        if end_date is not None:
+            stay.end_date = end_date
+
+        # Commit the changes
+        db.commit()
+        db.refresh(stay)
+        return {"message": "Stay updated successfully.", "updated_stay": stay}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error updating stay: {str(e)}")
+
+@app.post("/stays_in/update")
+def update_stays_in(
+    stay_id: int,
+    patient_id: int = None,
+    room_id: int = None,
+    start_date: str = None,
+    end_date: str = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Updates an existing row in the Stays_In table.
+
+    Args:
+        stay_id (int): The ID of the stay to update.
+        patient_id (int, optional): Updated patient ID.
+        room_id (int, optional): Updated room ID.
+        start_date (str, optional): Updated start date in YYYY-MM-DD format.
+        end_date (str, optional): Updated end date in YYYY-MM-DD format.
+        db (Session, optional): The database session (autoinjected).
+    """
+    try:
+        stay = crud.get_stay_by_id(db, stay_id)
+        if not stay:
+            raise HTTPException(status_code=404, detail=f"Stay with ID {stay_id} not found.")
+
+        # Update fields if new values are provided
+        if patient_id is not None:
+            stay.patient_id = patient_id
+        if room_id is not None:
+            stay.room_id = room_id
+        if start_date is not None:
+            stay.start_date = start_date
+        if end_date is not None:
+            stay.end_date = end_date
+
+        db.commit()
+        db.refresh(stay)
+        return {"message": "Stay updated successfully.", "updated_stay": stay}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error updating stay: {str(e)}")
