@@ -98,7 +98,7 @@ END$$
 
 DELIMITER ;
 
---teo a
+-- teo a
 ALTER TABLE Department
 ADD COLUMN num_doctors INT DEFAULT 0;
 
