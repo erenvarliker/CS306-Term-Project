@@ -45,7 +45,7 @@ END$$
 
 DELIMITER ;
 
---
+-- Eren Varliker
 
 ALTER TABLE Drugs ADD COLUMN availability VARCHAR(50) DEFAULT 'Available';
 
@@ -62,17 +62,23 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE PROCEDURE CalculatePatientDrugCost(IN patientID INT, OUT totalCost DECIMAL(10, 2))
+
+CREATE PROCEDURE CalculatePatientAgeCategories()
 BEGIN
-    -- Calculate the total cost of drugs prescribed to a patient
-    SELECT SUM(d.price) INTO totalCost
-    FROM Drugs d
-    JOIN Includes i ON d.drug_id = i.drug_id
-    JOIN Prescription p ON i.prescription_id = p.prescription_id
-    JOIN Appointment a ON p.appointment_id = a.appointment_id
-    WHERE a.patient_id = patientID;
+    SELECT 
+        patient_id,
+        name,
+        CASE
+            WHEN age < 18 THEN 'Child'
+            WHEN age BETWEEN 18 AND 65 THEN 'Adult'
+            ELSE 'Senior'
+        END AS age_category
+    FROM Patient;
 END$$
+
 DELIMITER ;
+
+-- Hakan
 
 DELIMITER $$
 CREATE TRIGGER Auto_Update_Room_Availability

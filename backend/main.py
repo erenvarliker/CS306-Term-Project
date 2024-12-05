@@ -100,6 +100,49 @@ def read_patients(db: Session = Depends(get_db)):
         logging.error(f"Error fetching patients: {e}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+@app.get("/patients/age-categories", response_class=HTMLResponse)
+def read_patient_age_categories(db: Session = Depends(get_db)):
+    try:
+        # Execute the stored procedure
+        result = db.execute(text("CALL CalculatePatientAgeCategories()")).fetchall()
+
+        # Start building the HTML response
+        html_content = """
+        <html>
+        <head><title>Patient Age Categories</title></head>
+        <body>
+        <h1>Patient Age Categories</h1>
+        <table border="1" style="border-collapse: collapse; width: 80%; margin: auto; text-align: center;">
+            <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Age Category</th>
+            </tr>
+        """
+
+        # Iterate through the result and add rows to the table
+        for row in result:
+            html_content += f"""
+            <tr>
+                <td>{row[0]}</td>
+                <td>{row[1]}</td>
+                <td>{row[2]}</td>
+            </tr>
+            """
+
+        # Close the table and body
+        html_content += """
+        </table>
+        </body>
+        </html>
+        """
+
+        return html_content
+
+    except Exception as e:
+        # Return an error message in case of an exception
+        return HTMLResponse(content=f"<h1>Error: {e}</h1>", status_code=500)
+
 
 @app.post("/rooms")
 def create_room(room_id: int, room_status: int, db: Session = Depends(get_db)):
