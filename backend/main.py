@@ -2,9 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from models import Base, Patient
+from models import Base, Patient, Appointment, Bill
 import crud
 import logging
+from fastapi import Form
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from models import Room
@@ -212,6 +213,11 @@ def read_room_availability(db: Session = Depends(get_db)):
         return HTMLResponse(content=table_html)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching room availability: {e}")
+
+
+@app.post("/submit_appointment")
+def submit_appointment(doctor_id: int, patient_id: int, appointment_date: str, db: Session = Depends(get_db)):
+    return crud.create_appointment(db, doctor_id, patient_id, appointment_date)
     
 @app.post("/stays_in")
 def create_stay(
