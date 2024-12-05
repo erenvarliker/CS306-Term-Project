@@ -6,9 +6,19 @@ from models import Base, Patient
 import crud
 import logging
 from fastapi.responses import HTMLResponse
-
+from fastapi.middleware.cors import CORSMiddleware
 # Initialize FastAPI
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins, change to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
+
 
 
 # Dependency to get DB session
@@ -26,8 +36,7 @@ def get_db():
     finally:
         db.close()
 
-
-
+        
 #Utility Function
 def generate_html_table(data, title):
     if not data:
@@ -86,8 +95,9 @@ def read_patients(db: Session = Depends(get_db)):
 
 
 @app.post("/patients")
-def create_patient(name: str, gender: str, age: int, db: Session = Depends(get_db)):
-    return crud.create_patient(db, name, gender, age)
+def create_patient(patient_id: int, name: str, gender: str, age: int, db: Session = Depends(get_db)):
+    return crud.create_patient(db, patient_id, name, gender, age)
+
 
 @app.get("/appointments",response_class=HTMLResponse)
 def read_appointments(db: Session = Depends(get_db)):
