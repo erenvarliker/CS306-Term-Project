@@ -41,7 +41,7 @@ CREATE TABLE Stays_In (
 );
 
 CREATE TABLE Appointment (
-    appointment_id INT PRIMARY KEY,
+    appointment_id INT AUTO_INCREMENT PRIMARY KEY,
     doctor_id INT,
     patient_id INT,
     appointment_date DATE,
@@ -327,9 +327,3 @@ INSERT INTO Has (department_id, equipment_id) VALUES
 (8, 8),
 (9, 9),
 (10, 10);
-
--- try
--- INSERT INTO Appointment (appointment_id, doctor_id, patient_id, appointment_date)
--- VALUES (11, 4694, 113, '2024-12-01');
-
--- SELECT * FROM Bill WHERE appointment_id = 11;

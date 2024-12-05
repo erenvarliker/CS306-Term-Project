@@ -2,9 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from models import Base, Patient
+from models import Base, Patient, Appointment, Bill
 import crud
 import logging
+from fastapi import Form
 from fastapi.responses import HTMLResponse
 
 # Initialize FastAPI
@@ -194,3 +195,45 @@ def read_room_availability(db: Session = Depends(get_db)):
         return HTMLResponse(content=table_html)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching room availability: {e}")
+
+@app.get("/insert_appointment", response_class=HTMLResponse)
+def insert_appointment_form():
+    html_content = """
+    <html>
+        <head>
+            <title>Insert Appointment</title>
+        </head>
+        <body>
+            <h1>Insert Appointment</h1>
+            <form action="/submit_appointment" method="post">
+                <label for="doctor_id">Doctor ID:</label>
+                <input type="number" id="doctor_id" name="doctor_id" required><br><br>
+                <label for="patient_id">Patient ID:</label>
+                <input type="number" id="patient_id" name="patient_id" required><br><br>
+                <label for="appointment_date">Appointment Date:</label>
+                <input type="date" id="appointment_date" name="appointment_date" required><br><br>
+                <button type="submit">Submit</button>
+            </form>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.post("/submit_appointment", response_class=HTMLResponse)
+def submit_appointment(doctor_id: int = Form(...), patient_id: int = Form(...), appointment_date: str = Form(...), db: Session = Depends(get_db)):
+    new_appointment = Appointment(doctor_id=doctor_id, patient_id=patient_id, appointment_date=appointment_date, appointment_id=None)
+    db.add(new_appointment)
+    db.commit()
+    db.refresh(new_appointment)
+
+    # Fetch updated tables
+    appointments = db.query(Appointment).all()
+    bills = db.query(Bill).all()
+
+    appointment_data = [appointment.__dict__ for appointment in appointments]
+    bill_data = [bill.__dict__ for bill in bills]
+
+    appointment_table = generate_html_table(appointment_data, "Appointments")
+    bill_table = generate_html_table(bill_data, "Bills")
+
+    return HTMLResponse(content=appointment_table + "<br><br>" + bill_table)

@@ -18,7 +18,7 @@ class Patient(Base):
 class Appointment(Base):
     __tablename__ = "Appointment"
 
-    appointment_id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     doctor_id = Column(Integer, nullable=True)
     patient_id = Column(Integer, ForeignKey("Patient.patient_id"))
     appointment_date = Column(String, nullable=True)
@@ -67,7 +67,7 @@ class Equipment(Base):
 class Bill(Base):
     __tablename__ = "Bill"
 
-    bill_id = Column(Integer, primary_key=True, index=True)
+    bill_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     appointment_id = Column(Integer, ForeignKey("Appointment.appointment_id"), nullable=False)
     amount = Column(DECIMAL(10, 2), nullable=False)
     status = Column(String(50), nullable=False)
