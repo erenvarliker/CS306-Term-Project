@@ -77,3 +77,16 @@ def get_room_availability(db: Session):
     query = text("CALL GetRoomAvailability()")
     result = db.execute(query)
     return result
+
+def get_stay_by_id(db: Session, stay_id: int):
+    """
+    Fetches a single stay from the Stays_In table by its ID.
+
+    Args:
+        db (Session): The database session.
+        stay_id (int): The ID of the stay to fetch.
+
+    Returns:
+        StaysIn: The stay object if found, None otherwise.
+    """
+    return db.query(StaysIn).filter(StaysIn.stay_id == stay_id).first()
