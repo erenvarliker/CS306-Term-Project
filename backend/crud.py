@@ -23,11 +23,15 @@ def get_appointments(db: Session):
     return db.query(Appointment).all()
 
 def create_appointment(db: Session, doctor_id: int, patient_id: int, appointment_date: str):
-    appointment = Appointment(doctor_id=doctor_id, patient_id=patient_id, appointment_date=appointment_date)
-    db.add(appointment)
-    db.commit()
-    db.refresh(appointment)
-    return appointment
+    try:
+        new_appointment = Appointment(doctor_id=doctor_id, patient_id=patient_id, appointment_date=appointment_date)
+        db.add(new_appointment)
+        db.commit()
+        db.refresh(new_appointment)
+        return new_appointment
+    except Exception as e:
+        db.rollback()
+        raise e
 
 # Departments
 

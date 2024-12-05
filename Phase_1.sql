@@ -1,6 +1,7 @@
 CREATE TABLE Department (
     department_id INT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+ 	billing_rate DECIMAL(10, 2) NOT NULL DEFAULT 100.00
 );
 
 CREATE TABLE Nurse (
@@ -40,7 +41,7 @@ CREATE TABLE Stays_In (
 );
 
 CREATE TABLE Appointment (
-    appointment_id INT PRIMARY KEY,
+    appointment_id INT AUTO_INCREMENT PRIMARY KEY,
     doctor_id INT,
     patient_id INT,
     appointment_date DATE,
@@ -49,7 +50,7 @@ CREATE TABLE Appointment (
 );
 
 CREATE TABLE Bill (
-    bill_id INT PRIMARY KEY,
+    bill_id INT AUTO_INCREMENT PRIMARY KEY,
     appointment_id INT,
     amount DECIMAL(10, 2),
     status VARCHAR(50),
