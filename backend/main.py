@@ -90,10 +90,10 @@ def read_patients(db: Session = Depends(get_db)):
 def create_patient(name: str, gender: str, age: int, db: Session = Depends(get_db)):
     return crud.create_patient(db, name, gender, age)
 
-@app.get("/appointments")
+@app.get("/appointments",response_class=HTMLResponse)
 def read_appointments(db: Session = Depends(get_db)):
-    return crud.get_appointments(db)
-
+    appointments = crud.get_appointments(db)
+    return generate_html_table(appointments,"Appointments")
 
 @app.post("/appointments")
 def create_appointment(doctor_id: int, patient_id: int, appointment_date: str, db: Session = Depends(get_db)):
