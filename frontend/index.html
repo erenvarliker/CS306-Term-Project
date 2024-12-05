@@ -12,11 +12,10 @@
         h1 {
             text-align: center;
         }
-        .buttons-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+        .buttons-container, .form-container {
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
         }
         button {
             padding: 15px 30px;
@@ -27,14 +26,42 @@
             background-color: #007BFF;
             color: white;
             transition: background-color 0.3s ease;
+            margin: 5px;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1>Management System</h1>
+    
     <div class="buttons-container">
         <button onclick="navigateTo('/patients')">Patients</button>
         <button onclick="navigateTo('/appointments')">Appointments</button>
@@ -51,6 +78,25 @@
         <button onclick="navigateTo('/prescriptions')">Prescriptions</button>
     </div>
 
+    <div class="form-container">
+        <h2>Add a New Patient</h2>
+        <form id="patientForm">
+            <label for="patient_id">Patient ID:</label>
+            <input type="number" id="patient_id" name="patient_id" required />
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="gender">Gender:</label>
+            <input type="text" id="gender" name="gender" required />
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required />
+
+            <button type="submit">Add Patient</button>
+        </form>
+    </div>
+
     <script>
         /**
          * Navigates to the given endpoint.
@@ -60,6 +106,41 @@
             const baseUrl = "http://127.0.0.1:8000"; // Base URL of the FastAPI backend
             window.location.href = baseUrl + endpoint;
         }
+
+        // Function to add a new patient
+        document.getElementById("patientForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const patient_id = parseInt(document.getElementById("patient_id").value);
+            const name = document.getElementById("name").value.trim();
+            const gender = document.getElementById("gender").value.trim();
+            const age = parseInt(document.getElementById("age").value);
+
+            // Construct query string
+            const queryParams = new URLSearchParams({
+                patient_id: patient_id,
+                name: name,
+                gender: gender,
+                age: age
+            });
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/patients?${queryParams.toString()}`, {
+                    method: "POST",
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`Patient added successfully! Patient ID: ${result.patient_id}`);
+                    document.getElementById("patientForm").reset();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${JSON.stringify(error.detail)}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
     </script>
 </body>
 </html>
