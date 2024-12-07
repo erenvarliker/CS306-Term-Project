@@ -1,4 +1,3 @@
-
 -- EGE
 DELIMITER $$
 
@@ -134,4 +133,28 @@ BEGIN
     FROM Department;
 END$$
 
+DELIMITER ;
+
+--teoman y
+
+DELIMITER $$
+CREATE TRIGGER increment_employee_count_on_doctor_add
+AFTER INSERT ON Doctor
+FOR EACH ROW
+BEGIN
+    UPDATE Department
+    SET num_doctors = num_doctors + 1
+    WHERE department_id = NEW.department_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE get_doctors_by_department(
+    IN dept_id INT
+)
+BEGIN
+    SELECT doctor_id, name
+    FROM Doctor
+    WHERE department_id = dept_id;
+END$$
 DELIMITER ;

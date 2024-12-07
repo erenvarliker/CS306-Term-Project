@@ -480,3 +480,25 @@ def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error removing doctor: {str(e)}")
+from fastapi import Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+
+@app.get("/departments/{department_id}/doctors")
+def get_doctors_by_department_endpoint(department_id: int, db: Session = Depends(get_db)):
+    try:
+        # Execute the stored procedure with the given department_id
+        result = db.execute(
+            text("CALL get_doctors_by_department(:dept_id)"),
+            {'dept_id': department_id}
+        )
+
+        # Fetch all results
+        doctors = result.fetchall()
+
+        # Convert the results into a list of dictionaries
+        doctors_list = [{'doctor_id': row.doctor_id, 'name': row.name} for row in doctors]
+
+        return {'doctors': doctors_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving doctors: {e}")
