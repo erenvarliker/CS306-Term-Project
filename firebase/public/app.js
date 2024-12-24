@@ -41,11 +41,14 @@ auth.onAuthStateChanged(user => {
     whenSignedIn.hidden = false;
     whenSignedOut.hidden = true;
     userDetails.innerHTML = `<h3>Hello ${user.email ? user.email : 'Guest'}</h3>`;
+    loadThreads(user.uid);
   } else {
     whenSignedIn.hidden = true;
     whenSignedOut.hidden = false;
     userDetails.innerHTML = '';
-    thingsList.innerHTML = ''; // Clear items on sign out
+    threadsList.innerHTML = '';
+    messagesList.innerHTML = '';
+    sendMessageForm.hidden = true;
   }
 });
 
@@ -53,42 +56,76 @@ auth.onAuthStateChanged(user => {
 
 const db = firebase.firestore();
 
-const createThing = document.getElementById('createThing');
-const thingsList = document.getElementById('thingsList');
+const threadsList = document.getElementById('threadsList');
+const messagesList = document.getElementById('messagesList');
+const createThreadForm = document.getElementById('createThreadForm');
+const sendMessageForm = document.getElementById('sendMessageForm');
+const messageContent = document.getElementById('messageContent');
 
-let thingsRef;
-let unsubscribe;
+let threadsRef;
+let messagesRef;
+let unsubscribeThreads;
+let unsubscribeMessages;
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    // Database Reference
-    thingsRef = db.collection('things');
+function loadThreads(uid) {
+  threadsRef = db.collection('threads').where('uid', '==', uid);
 
-    createThing.onclick = () => {
-      const { serverTimestamp } = firebase.firestore.FieldValue;
+  unsubscribeThreads = threadsRef.onSnapshot(querySnapshot => {
+    const items = querySnapshot.docs.map(doc => {
+      return `<li data-id="${doc.id}">${doc.data().title}</li>`;
+    });
 
-      thingsRef.add({
-        uid: user.uid,
-        name: faker.commerce.productName(),
-        createdAt: serverTimestamp()
-      });
-    };
+    threadsList.innerHTML = items.join('');
+    threadsList.querySelectorAll('li').forEach(item => {
+      item.onclick = () => loadMessages(item.getAttribute('data-id'));
+    });
+  });
+}
 
-    // Query
-    unsubscribe = thingsRef
-      .where('uid', '==', user.uid)
-      .orderBy('createdAt') // Requires a query
-      .onSnapshot(querySnapshot => {
-        // Map results to an array of li elements
-        const items = querySnapshot.docs.map(doc => {
-          return `<li>${doc.data().name}</li>`;
+function loadMessages(threadId) {
+  messagesRef = db.collection('threads').doc(threadId).collection('messages').orderBy('timestamp');
+
+  unsubscribeMessages && unsubscribeMessages();
+  unsubscribeMessages = messagesRef.onSnapshot(querySnapshot => {
+    const items = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return `<li><strong>${data.sender}:</strong> ${data.content} <em>${new Date(data.timestamp.toDate()).toLocaleString()}</em></li>`;
+    });
+
+    messagesList.innerHTML = items.join('');
+    sendMessageForm.hidden = false;
+    sendMessageForm.onsubmit = async (event) => {
+      event.preventDefault();
+      const content = messageContent.value.trim();
+      if (content) {
+        await messagesRef.add({
+          sender: auth.currentUser.email || 'Guest',
+          content: content,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          uid: auth.currentUser.uid
         });
+        messageContent.value = '';
+      }
+    };
+  });
+}
 
-        thingsList.innerHTML = items.join('');
-      });
-  } else {
-    // Unsubscribe when the user signs out
-    unsubscribe && unsubscribe();
-    thingsList.innerHTML = ''; // Clear items on sign out
-  }
-});
+createThreadForm.onsubmit = async (event) => {
+  event.preventDefault();
+  const title = document.getElementById('threadTitle').value;
+  const initialMessage = document.getElementById('initialMessage').value;
+
+  const newThreadRef = await db.collection('threads').add({
+    uid: auth.currentUser.uid,
+    title: title
+  });
+
+  await newThreadRef.collection('messages').add({
+    sender: auth.currentUser.email || 'Guest',
+    content: initialMessage,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    uid: auth.currentUser.uid
+  });
+
+  createThreadForm.reset();
+};
