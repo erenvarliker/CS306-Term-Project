@@ -6,6 +6,7 @@ const whenSignedIn = document.getElementById('whenSignedIn');
 const whenSignedOut = document.getElementById('whenSignedOut');
 
 const signInBtn = document.getElementById('signInBtn');
+const guestSignInBtn = document.getElementById('guestSignInBtn');
 const signOutBtn = document.getElementById('signOutBtn');
 
 const userDetails = document.getElementById('userDetails');
@@ -23,6 +24,14 @@ signInBtn.onclick = async () => {
   }
 };
 
+guestSignInBtn.onclick = async () => {
+  try {
+    await auth.signInAnonymously();
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+};
+
 signOutBtn.onclick = () => auth.signOut();
 
 /// Auth state change listener
@@ -31,18 +40,13 @@ auth.onAuthStateChanged(user => {
   if (user) {
     whenSignedIn.hidden = false;
     whenSignedOut.hidden = true;
-    userDetails.innerHTML = `<h3>Hello ${user.email}</h3>`;
+    userDetails.innerHTML = `<h3>Hello ${user.email ? user.email : 'Guest'}</h3>`;
   } else {
     whenSignedIn.hidden = true;
     whenSignedOut.hidden = false;
     userDetails.innerHTML = '';
   }
 });
-
-/// also implement guest login
-
-
-
 
 ///// Firestore /////
 
@@ -51,51 +55,40 @@ const db = firebase.firestore();
 const createThing = document.getElementById('createThing');
 const thingsList = document.getElementById('thingsList');
 
-
 let thingsRef;
 let unsubscribe;
 
 auth.onAuthStateChanged(user => {
+  if (user) {
+    // Database Reference
+    thingsRef = db.collection('things');
 
-    if (user) {
+    createThing.onclick = () => {
+      const { serverTimestamp } = firebase.firestore.FieldValue;
 
-        // Database Reference
-        thingsRef = db.collection('things')
+      thingsRef.add({
+        uid: user.uid,
+        name: faker.commerce.productName(),
+        createdAt: serverTimestamp()
+      });
+    };
 
-        createThing.onclick = () => {
+    // Query
+    unsubscribe = thingsRef
+      .where('uid', '==', user.uid)
+      .orderBy('createdAt') // Requires a query
+      .onSnapshot(querySnapshot => {
+        // Map results to an array of li elements
+        const items = querySnapshot.docs.map(doc => {
+          return `<li>${doc.data().name}</li>`;
+        });
 
-            const { serverTimestamp } = firebase.firestore.FieldValue;
-
-            thingsRef.add({
-                uid: user.uid,
-                name: faker.commerce.productName(),
-                createdAt: serverTimestamp()
-            });
-        }
-
-
-        // Query
-        unsubscribe = thingsRef
-            .where('uid', '==', user.uid)
-            .orderBy('createdAt') // Requires a query
-            .onSnapshot(querySnapshot => {
-                
-                // Map results to an array of li elements
-
-                const items = querySnapshot.docs.map(doc => {
-
-                    return `<li>${doc.data().name}</li>`
-
-                });
-
-                thingsList.innerHTML = items.join('');
-
-            });
-
-
-
-    } else {
-        // Unsubscribe when the user signs out
-        unsubscribe && unsubscribe();
-    }
+        thingsList.innerHTML = items.join('');
+      });
+  } else {
+    // Unsubscribe when the user signs out
+    unsubscribe && unsubscribe();
+  }
 });
+
+/// clear items on sign out
