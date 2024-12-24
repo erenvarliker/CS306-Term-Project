@@ -45,6 +45,7 @@ auth.onAuthStateChanged(user => {
     whenSignedIn.hidden = true;
     whenSignedOut.hidden = false;
     userDetails.innerHTML = '';
+    thingsList.innerHTML = ''; // Clear items on sign out
   }
 });
 
@@ -88,7 +89,6 @@ auth.onAuthStateChanged(user => {
   } else {
     // Unsubscribe when the user signs out
     unsubscribe && unsubscribe();
+    thingsList.innerHTML = ''; // Clear items on sign out
   }
 });
-
-/// clear items on sign out
