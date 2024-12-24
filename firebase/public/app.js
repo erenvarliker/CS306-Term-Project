@@ -83,10 +83,11 @@ function loadThreads(uid) {
 }
 
 function loadMessages(threadId) {
-  messagesRef = db.collection('threads').doc(threadId).collection('messages').orderBy('timestamp');
+  messagesRef = db.collection('threads').doc(threadId);
+  const msgref = messagesRef.collection('messages').orderBy('timestamp');
 
   unsubscribeMessages && unsubscribeMessages();
-  unsubscribeMessages = messagesRef.onSnapshot(querySnapshot => {
+  unsubscribeMessages = msgref.onSnapshot(querySnapshot => {
     const items = querySnapshot.docs.map(doc => {
       const data = doc.data();
       return `<li><strong>${data.sender}:</strong> ${data.content} <em>${new Date(data.timestamp.toDate()).toLocaleString()}</em></li>`;
