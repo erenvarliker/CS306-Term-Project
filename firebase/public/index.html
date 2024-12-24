@@ -15,7 +15,7 @@
      https://firebase.google.com/docs/web/setup#available-libraries -->
 
   <script>
-    const firebaseConfig = {
+    var firebaseConfig = {
         apiKey: "AIzaSyBp9cmlzbjHxI7cu2fZyeo21vU8cRVQuoI",
         authDomain: "cs306-a2a20.firebaseapp.com",
         databaseURL: "https://cs306-a2a20-default-rtdb.europe-west1.firebasedatabase.app",
@@ -44,9 +44,9 @@
   <h1>My Awesome App 🔥</h1>
 
   <section id="whenSignedOut">
-
-    <button id="signInBtn" class="btn btn-primary">Sign in with Google</button>
-
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="signInBtn" class="btn btn-primary">Sign in with Email</button>
   </section>
 
   <section id="whenSignedIn" hidden="true">
@@ -70,8 +70,6 @@
     <button id="createThing" class="btn btn-success">Create Random Thing</button>
 
   </section>
-
-
 
 </body>
 

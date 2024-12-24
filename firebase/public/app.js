@@ -10,11 +10,92 @@ const signOutBtn = document.getElementById('signOutBtn');
 
 const userDetails = document.getElementById('userDetails');
 
-
-const provider = new firebase.auth.GoogleAuthProvider();
-
 /// Sign in event handlers
 
-signInBtn.onclick = () => auth.signInWithPopup(provider);
+signInBtn.onclick = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+};
 
 signOutBtn.onclick = () => auth.signOut();
+
+/// Auth state change listener
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    whenSignedIn.hidden = false;
+    whenSignedOut.hidden = true;
+    userDetails.innerHTML = `<h3>Hello ${user.email}</h3>`;
+  } else {
+    whenSignedIn.hidden = true;
+    whenSignedOut.hidden = false;
+    userDetails.innerHTML = '';
+  }
+});
+
+/// also implement guest login
+
+
+
+
+///// Firestore /////
+
+const db = firebase.firestore();
+
+const createThing = document.getElementById('createThing');
+const thingsList = document.getElementById('thingsList');
+
+
+let thingsRef;
+let unsubscribe;
+
+auth.onAuthStateChanged(user => {
+
+    if (user) {
+
+        // Database Reference
+        thingsRef = db.collection('things')
+
+        createThing.onclick = () => {
+
+            const { serverTimestamp } = firebase.firestore.FieldValue;
+
+            thingsRef.add({
+                uid: user.uid,
+                name: faker.commerce.productName(),
+                createdAt: serverTimestamp()
+            });
+        }
+
+
+        // Query
+        unsubscribe = thingsRef
+            .where('uid', '==', user.uid)
+            .orderBy('createdAt') // Requires a query
+            .onSnapshot(querySnapshot => {
+                
+                // Map results to an array of li elements
+
+                const items = querySnapshot.docs.map(doc => {
+
+                    return `<li>${doc.data().name}</li>`
+
+                });
+
+                thingsList.innerHTML = items.join('');
+
+            });
+
+
+
+    } else {
+        // Unsubscribe when the user signs out
+        unsubscribe && unsubscribe();
+    }
+});
