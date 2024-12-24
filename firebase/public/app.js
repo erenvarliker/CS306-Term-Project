@@ -90,7 +90,7 @@ function loadMessages(threadId) {
   unsubscribeMessages = msgref.onSnapshot(querySnapshot => {
     const items = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      return `<li><strong>${data.sender}:</strong> ${data.content} <em>${new Date(data.timestamp.toDate()).toLocaleString()}</em></li>`;
+      return `<li><strong>${data.sender}:</strong> ${data.content} <em>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'No timestamp'}</em></li>`;
     });
 
     messagesList.innerHTML = items.join('');
@@ -99,7 +99,7 @@ function loadMessages(threadId) {
       event.preventDefault();
       const content = messageContent.value.trim();
       if (content) {
-        await messagesRef.add({
+        await messagesRef.collection('messages').add({
           sender: auth.currentUser.email || 'Guest',
           content: content,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
