@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+        
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
+  
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyBp9cmlzbjHxI7cu2fZyeo21vU8cRVQuoI",
+          authDomain: "cs306-a2a20.firebaseapp.com",
+          databaseURL: "https://cs306-a2a20-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "cs306-a2a20",
+          storageBucket: "cs306-a2a20.firebasestorage.app",
+          messagingSenderId: "907909632678",
+          appId: "1:907909632678:web:3de977f0187a29c8801a67",
+          measurementId: "G-3PRXY9VBZG"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
+      <script src="app.js" defer></script>
+</head>
+<body>
+
+    <h1>My Awesome App 🔥</h1>
+  
+    <section id="whenSignedOut">
+  
+      <button id="signInBtn" class="btn btn-primary">Sign in with Google</button>
+  
+    </section>
+  
+    <section id="whenSignedIn" hidden="true">
+  
+      <div id="userDetails"></div>
+  
+      <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+  
+    </section>
+  
+    <hr>
+  
+    <section>
+  
+      <h2>My Firestore Things</h2>
+  
+      <ul id="thingsList">
+  
+      </ul>
+  
+      <button id="createThing" class="btn btn-success">Create Random Thing</button>
+  
+    </section>
+  
+  </body>
+</html>
