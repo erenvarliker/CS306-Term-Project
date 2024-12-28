@@ -25,7 +25,7 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <script src="admin.js" defer></script>
+  <script src="app.js" defer></script>
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -37,15 +37,17 @@
     body {
       background-color: #f8f9fa;
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     h1 {
       text-align: center;
       margin-top: 20px;
-      margin-bottom: 20px;
+      color: #343a40;
     }
 
-    #whenSignedOut, #whenSignedIn {
+    section {
       max-width: 600px;
       margin: 20px auto;
       padding: 20px;
@@ -62,6 +64,7 @@
       border: 1px solid #dee2e6;
       border-radius: 5px;
       background-color: #ffffff;
+      margin-top: 10px;
     }
 
     ul {
@@ -79,8 +82,27 @@
       cursor: pointer;
     }
 
-    form {
-      margin-top: 20px;
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .form-control {
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .text-center {
+      margin-bottom: 20px;
+    }
+
+    hr {
+      border-top: 1px solid #dee2e6;
     }
   </style>
 </head>
@@ -98,7 +120,8 @@
       <input type="password" id="password" class="form-control" placeholder="Password" required>
     </div>
     <div class="text-center">
-      <button id="signInBtn" class="btn btn-primary btn-block">Sign in with Email</button>
+      <button id="signInBtn" class="btn btn-primary">Sign in with Email</button>
+      <button id="guestSignInBtn" class="btn btn-secondary">Sign in as Guest</button>
     </div>
   </section>
 
@@ -110,8 +133,21 @@
 
     <hr>
 
-    <h2>User Threads</h2>
+    <h2>Your Threads</h2>
     <ul id="threadsList" class="list-group"></ul>
+
+    <h2>Create New Thread</h2>
+    <form id="createThreadForm">
+      <label for="threadTitle">Title:</label>
+      <select id="threadTitle" class="form-control" required>
+        <option value="Broken Product">Broken Product</option>
+        <option value="Order Issue">Order Issue</option>
+        <option value="General Inquiry">General Inquiry</option>
+      </select>
+      <label for="initialMessage">Initial Message:</label>
+      <input type="text" id="initialMessage" class="form-control" required>
+      <button type="submit" class="btn btn-success">Create Thread</button>
+    </form>
 
     <hr>
 
@@ -121,7 +157,7 @@
       <div class="form-group">
         <input type="text" id="messageContent" class="form-control" placeholder="Type your message" required>
       </div>
-      <button type="submit" class="btn btn-success btn-block">Send</button>
+      <button type="submit" class="btn btn-primary">Send</button>
     </form>
   </section>
 

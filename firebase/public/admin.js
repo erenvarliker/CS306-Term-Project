@@ -6,7 +6,6 @@ const whenSignedIn = document.getElementById('whenSignedIn');
 const whenSignedOut = document.getElementById('whenSignedOut');
 
 const signInBtn = document.getElementById('signInBtn');
-const guestSignInBtn = document.getElementById('guestSignInBtn');
 const signOutBtn = document.getElementById('signOutBtn');
 
 const userDetails = document.getElementById('userDetails');
@@ -24,13 +23,6 @@ signInBtn.onclick = async () => {
   }
 };
 
-guestSignInBtn.onclick = async () => {
-  try {
-    await auth.signInAnonymously();
-  } catch (error) {
-    alert(`Error: ${error.message}`);
-  }
-};
 
 signOutBtn.onclick = () => auth.signOut();
 
@@ -58,7 +50,6 @@ const db = firebase.firestore();
 
 const threadsList = document.getElementById('threadsList');
 const messagesList = document.getElementById('messagesList');
-const createThreadForm = document.getElementById('createThreadForm');
 const sendMessageForm = document.getElementById('sendMessageForm');
 const messageContent = document.getElementById('messageContent');
 
@@ -110,23 +101,3 @@ function loadMessages(threadId) {
     };
   });
 }
-
-createThreadForm.onsubmit = async (event) => {
-  event.preventDefault();
-  const title = document.getElementById('threadTitle').value;
-  const initialMessage = document.getElementById('initialMessage').value;
-
-  const newThreadRef = await db.collection('threads').add({
-    uid: auth.currentUser.uid,
-    title: title
-  });
-
-  await newThreadRef.collection('messages').add({
-    sender: auth.currentUser.email || 'Guest',
-    content: initialMessage,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    uid: auth.currentUser.uid
-  });
-
-  createThreadForm.reset();
-};

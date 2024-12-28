@@ -4,34 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messaging App</title>
-
-  <!-- Firebase and other necessary scripts -->
-  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
-
-  <script>
-    var firebaseConfig = {
-        apiKey: "AIzaSyBp9cmlzbjHxI7cu2fZyeo21vU8cRVQuoI",
-        authDomain: "cs306-a2a20.firebaseapp.com",
-        databaseURL: "https://cs306-a2a20-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "cs306-a2a20",
-        storageBucket: "cs306-a2a20.firebasestorage.app",
-        messagingSenderId: "907909632678",
-        appId: "1:907909632678:web:3de977f0187a29c8801a67",
-        measurementId: "G-3PRXY9VBZG"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <script src="app.js" defer></script>
+  <title>Login Page</title>
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"
-    integrity="sha512-/seDHxVfh1NvFUscAj8GsHQVZJvr2jjAoYsNL7As2FCaFHUHYIarl3sRCvVlFgyouVNiRgHIebyLKjpgd1SLDw=="
-    crossorigin="anonymous"></script>
 
   <style>
     body {
@@ -39,127 +15,53 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-      color: #343a40;
-    }
-
-    section {
-      max-width: 600px;
-      margin: 20px auto;
+    .container {
+      max-width: 400px;
       padding: 20px;
       background-color: #ffffff;
       border: 1px solid #dee2e6;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
-    #threadsList, #messagesList {
-      max-height: 300px;
-      overflow-y: auto;
-      padding: 10px;
-      border: 1px solid #dee2e6;
-      border-radius: 5px;
-      background-color: #ffffff;
-      margin-top: 10px;
-    }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    li {
-      padding: 10px;
-      border-bottom: 1px solid #dee2e6;
-    }
-
-    li:hover {
-      background-color: #f1f1f1;
-      cursor: pointer;
-    }
-
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
-
-    .form-control {
-      margin-bottom: 15px;
+    h1 {
+      margin-bottom: 20px;
+      color: #343a40;
     }
 
     .btn {
       width: 100%;
       margin-top: 10px;
     }
-
-    .text-center {
-      margin-bottom: 20px;
-    }
-
-    hr {
-      border-top: 1px solid #dee2e6;
-    }
   </style>
 </head>
 
 <body>
 
-  <h1>Messaging App</h1>
+  <div class="container">
+    <h1>Welcome to Messaging App</h1>
+    <p>Please choose your login type:</p>
 
-  <section id="whenSignedOut">
-    <h2 class="text-center">Sign In</h2>
-    <div class="form-group">
-      <input type="email" id="email" class="form-control" placeholder="Email" required>
-    </div>
-    <div class="form-group">
-      <input type="password" id="password" class="form-control" placeholder="Password" required>
-    </div>
-    <div class="text-center">
-      <button id="signInBtn" class="btn btn-primary">Sign in with Email</button>
-      <button id="guestSignInBtn" class="btn btn-secondary">Sign in as Guest</button>
-    </div>
-  </section>
+    <button class="btn btn-primary" onclick="navigateToUser()">User Login</button>
+    <button class="btn btn-secondary" onclick="navigateToAdmin()">Admin Login</button>
+  </div>
 
-  <section id="whenSignedIn" hidden="true">
-    <div id="userDetails" class="text-center mb-3"></div>
-    <div class="text-center">
-      <button id="signOutBtn" class="btn btn-danger">Sign Out</button>
-    </div>
+  <script>
+    function navigateToUser() {
+      window.location.href = "user.html";
+    }
 
-    <hr>
-
-    <h2>Your Threads</h2>
-    <ul id="threadsList" class="list-group"></ul>
-
-    <h2>Create New Thread</h2>
-    <form id="createThreadForm">
-      <label for="threadTitle">Title:</label>
-      <select id="threadTitle" class="form-control" required>
-        <option value="Broken Product">Broken Product</option>
-        <option value="Order Issue">Order Issue</option>
-        <option value="General Inquiry">General Inquiry</option>
-      </select>
-      <label for="initialMessage">Initial Message:</label>
-      <input type="text" id="initialMessage" class="form-control" required>
-      <button type="submit" class="btn btn-success">Create Thread</button>
-    </form>
-
-    <hr>
-
-    <h2>Messages</h2>
-    <ul id="messagesList" class="list-group"></ul>
-    <form id="sendMessageForm" hidden="true">
-      <div class="form-group">
-        <input type="text" id="messageContent" class="form-control" placeholder="Type your message" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Send</button>
-    </form>
-  </section>
+    function navigateToAdmin() {
+      window.location.href = "admin.html";
+    }
+  </script>
 
 </body>
 
