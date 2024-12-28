@@ -11,9 +11,6 @@
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
 
-  <!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
-
   <script>
     var firebaseConfig = {
         apiKey: "AIzaSyBp9cmlzbjHxI7cu2fZyeo21vU8cRVQuoI",
@@ -36,7 +33,56 @@
     integrity="sha512-/seDHxVfh1NvFUscAj8GsHQVZJvr2jjAoYsNL7As2FCaFHUHYIarl3sRCvVlFgyouVNiRgHIebyLKjpgd1SLDw=="
     crossorigin="anonymous"></script>
 
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
 
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    #whenSignedOut, #whenSignedIn {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #threadsList, #messagesList {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      background-color: #ffffff;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    li:hover {
+      background-color: #f1f1f1;
+      cursor: pointer;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
@@ -44,41 +90,39 @@
   <h1>Messaging App</h1>
 
   <section id="whenSignedOut">
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button id="signInBtn" class="btn btn-primary">Sign in with Email</button>
-    <button id="guestSignInBtn" class="btn btn-secondary">Sign in as Guest</button>
+    <h2 class="text-center">Sign In</h2>
+    <div class="form-group">
+      <input type="email" id="email" class="form-control" placeholder="Email" required>
+    </div>
+    <div class="form-group">
+      <input type="password" id="password" class="form-control" placeholder="Password" required>
+    </div>
+    <div class="text-center">
+      <button id="signInBtn" class="btn btn-primary btn-block">Sign in with Email</button>
+      <button id="guestSignInBtn" class="btn btn-secondary btn-block">Sign in as Guest</button>
+    </div>
   </section>
 
   <section id="whenSignedIn" hidden="true">
-    <div id="userDetails"></div>
-    <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+    <div id="userDetails" class="text-center mb-3"></div>
+    <div class="text-center">
+      <button id="signOutBtn" class="btn btn-danger">Sign Out</button>
+    </div>
 
     <hr>
 
-    <h2>Your Threads</h2>
-    <ul id="threadsList"></ul>
-
-    <h2>Create New Thread</h2>
-    <form id="createThreadForm">
-      <label for="threadTitle">Title:</label>
-      <select id="threadTitle" required>
-        <option value="Broken Product">Broken Product</option>
-        <option value="Order Issue">Order Issue</option>
-        <option value="General Inquiry">General Inquiry</option>
-      </select>
-      <label for="initialMessage">Initial Message:</label>
-      <input type="text" id="initialMessage" required>
-      <button type="submit" class="btn btn-success">Create Thread</button>
-    </form>
+    <h2>User Threads</h2>
+    <ul id="threadsList" class="list-group"></ul>
 
     <hr>
 
     <h2>Messages</h2>
-    <ul id="messagesList"></ul>
+    <ul id="messagesList" class="list-group"></ul>
     <form id="sendMessageForm" hidden="true">
-      <input type="text" id="messageContent" placeholder="Type your message" required>
-      <button type="submit" class="btn btn-primary">Send</button>
+      <div class="form-group">
+        <input type="text" id="messageContent" class="form-control" placeholder="Type your message" required>
+      </div>
+      <button type="submit" class="btn btn-success btn-block">Send</button>
     </form>
   </section>
 
