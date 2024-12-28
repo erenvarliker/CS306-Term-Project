@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messaging App</title>
+  <title>Hospital Support System</title>
 
   <!-- Firebase and other necessary scripts -->
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
@@ -109,7 +109,7 @@
 
 <body>
 
-  <h1>Messaging App</h1>
+  <h1>Hospital Support System</h1>
 
   <section id="whenSignedOut">
     <h2 class="text-center">Sign In</h2>
@@ -140,9 +140,13 @@
     <form id="createThreadForm">
       <label for="threadTitle">Title:</label>
       <select id="threadTitle" class="form-control" required>
-        <option value="Broken Product">Broken Product</option>
-        <option value="Order Issue">Order Issue</option>
-        <option value="General Inquiry">General Inquiry</option>
+        <option value="Appointment Scheduling">Appointment Scheduling</option>
+        <option value="Medical Records">Medical Records</option>
+        <option value="Billing Inquiry">Billing Inquiry</option>
+        <option value="Prescription Refill">Prescription Refill</option>
+        <option value="Lab Results">Lab Results</option>
+        <option value="Doctor Consultation">Doctor Consultation</option>
+        <option value="Insurance Claims">Insurance Claims</option>
       </select>
       <label for="initialMessage">Initial Message:</label>
       <input type="text" id="initialMessage" class="form-control" required>
