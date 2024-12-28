@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messaging App</title>
+
+  <!-- Firebase and other necessary scripts -->
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+  <script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyBp9cmlzbjHxI7cu2fZyeo21vU8cRVQuoI",
+        authDomain: "cs306-a2a20.firebaseapp.com",
+        databaseURL: "https://cs306-a2a20-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "cs306-a2a20",
+        storageBucket: "cs306-a2a20.firebasestorage.app",
+        messagingSenderId: "907909632678",
+        appId: "1:907909632678:web:3de977f0187a29c8801a67",
+        measurementId: "G-3PRXY9VBZG"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script src="admin.js" defer></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"
+    integrity="sha512-/seDHxVfh1NvFUscAj8GsHQVZJvr2jjAoYsNL7As2FCaFHUHYIarl3sRCvVlFgyouVNiRgHIebyLKjpgd1SLDw=="
+    crossorigin="anonymous"></script>
+
+
+</head>
+
+<body>
+
+  <h1>Messaging App</h1>
+
+  <section id="whenSignedOut">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="signInBtn" class="btn btn-primary">Sign in with Email</button>
+    <button id="guestSignInBtn" class="btn btn-secondary">Sign in as Guest</button>
+  </section>
+
+  <section id="whenSignedIn" hidden="true">
+    <div id="userDetails"></div>
+    <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+
+    <hr>
+
+    <h2>Your Threads</h2>
+    <ul id="threadsList"></ul>
+
+    <h2>Create New Thread</h2>
+    <form id="createThreadForm">
+      <label for="threadTitle">Title:</label>
+      <select id="threadTitle" required>
+        <option value="Broken Product">Broken Product</option>
+        <option value="Order Issue">Order Issue</option>
+        <option value="General Inquiry">General Inquiry</option>
+      </select>
+      <label for="initialMessage">Initial Message:</label>
+      <input type="text" id="initialMessage" required>
+      <button type="submit" class="btn btn-success">Create Thread</button>
+    </form>
+
+    <hr>
+
+    <h2>Messages</h2>
+    <ul id="messagesList"></ul>
+    <form id="sendMessageForm" hidden="true">
+      <input type="text" id="messageContent" placeholder="Type your message" required>
+      <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+  </section>
+
+</body>
+
+</html>
