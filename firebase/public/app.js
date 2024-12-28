@@ -118,6 +118,7 @@ createThreadForm.onsubmit = async (event) => {
 
   const newThreadRef = await db.collection('threads').add({
     uid: auth.currentUser.uid,
+    sender: auth.currentUser.email || 'Guest',
     title: title
   });
 

@@ -63,9 +63,9 @@ function loadThreads(uid) {
 
   unsubscribeThreads = threadsRef.onSnapshot(querySnapshot => {
     const items = querySnapshot.docs.map(doc => {
-      return `<li data-id="${doc.id}">${doc.data().title}</li>`;
+      return `<li data-id="${doc.id}">${doc.data().sender} - ${doc.data().title}</li>`;
     });
-
+    // `<li data-id="${doc.id}" data-uid="${doc.data().uid}">${doc.data().title}</li>`;
     threadsList.innerHTML = items.join('');
     threadsList.querySelectorAll('li').forEach(item => {
       item.onclick = () => loadMessages(item.getAttribute('data-id'));
