@@ -91,7 +91,7 @@ function loadMessages(threadId) {
       const content = messageContent.value.trim();
       if (content) {
         await messagesRef.collection('messages').add({
-          sender: auth.currentUser.email || 'Guest',
+          sender: 'Admin',
           content: content,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
           uid: auth.currentUser.uid
